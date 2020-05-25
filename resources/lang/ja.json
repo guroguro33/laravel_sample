@@ -1,7 +1,14 @@
 {
+  "Login": "ログイン",
   "Drill Register": "練習登録",
   "Title": "タイトル",
   "Category": "カテゴリー",
   "Problem": "問題",
-  "Register": "登録"
+  "Register": "登録",
+  "Drill List": "タイピング練習一覧",
+  "Go Practice": "挑戦する",
+  "Invalid operation was performed.": "不正な操作が行われました",
+  "Go Edit": "編集する",
+  "Go Delete": "削除する",
+  "Deleted.": "削除しました"
 }

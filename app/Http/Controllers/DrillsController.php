@@ -7,13 +7,30 @@ use App\Drill;
 
 class DrillsController extends Controller
 {
+  public function index()
+  {
+    $drills = Drill::all(); // Drillの全データ取得
+    return view('drills.index', ['drills' => $drills]);
+
+  }
+
+  public function show($id)
+  {
+    if(!ctype_digit($id)){
+      return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
+    }
+    $drill = Drill::find($id);
+    return view('drills.show', ['drill' => $drill]);
+
+  }
+
   public function new()
   {
     return view('drills.new');
   }
 
-  public function create(Request $request)
-    {
+  public function create(Request $request) // Requestクラスの変数$requestを引数にとる
+  {
         $request->validate([
             'title' => 'required|string|max:255',
             'category_name' => 'required|string|max:255',
@@ -44,6 +61,44 @@ class DrillsController extends Controller
         // リダイレクトする
         // その時にsessionフラッシュにメッセージを入れる
         return redirect('/drills/new')->with('flash_message', __('Registered'));
+  }
+
+  public function edit($id){ // $idと引数を用意すると、ルーティングのパラメータが自動的に入ってくる
+    // GETパラメータが数字がどうかチェックする
+    // 事前にチェックしておくことでDBへの無駄なアクセスが減らせる（WEBサーバーへのアクセスのみで済む）
+    if(!ctype_digit($id)){ // $idが数字かチェックする
+      return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
     }
+    $drill = Drill::find($id);
+    return view('drills.edit', ['drill' => $drill]); // viewに変数drillを渡す
+  }
+
+  public function update(Request $request, $id){ // 2つの引数をとる
+    // GETパラメータが数字かどうかをチェックする
+    if(!ctype_digit($id)){
+      return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
+    } 
+    $drill = Drill::find($id);
+    $drill->fill($request->all())->save();
+
+    return redirect('/drills')->with('flash_message', __('Registered'));
+
+  }
+
+  public function destroy($id){
+    // GETパラメータが数字かどうかをチェックする
+    if(!ctype_digit($id)){
+      return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed'));
+    }
+
+    // delete方法その１
+    // $drill = Drill::find($id);
+    // $drill->delete();
+
+    // こう書いた方がスマート
+    Drill::find($id)->delete();
+
+    return redirect('/drills')->with('flash_message', __('Deleted.'));
+  }
 
 }
