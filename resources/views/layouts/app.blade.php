@@ -72,8 +72,15 @@
             </div>
         </nav>
 
+        {{-- フラッシュメッセージ --}}
+        @if (session('flash_message'))
+          <div class="alert alert-primary text-center" role="alert">
+            {{ session('flash_message') }}
+          </div>
+        @endif
+
         <main class="py-4">
-            @yield('content')
+          @yield('content')
         </main>
     </div>
 </body>
