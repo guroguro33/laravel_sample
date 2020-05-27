@@ -36,4 +36,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    // モデル同士のリレーションを貼ることにより自動的にテーブル結合をする
+    // function名は慣習としてモデル名にする
+    public function drills() {
+        return $this->hasMany('App\Drill');
+    }
 }

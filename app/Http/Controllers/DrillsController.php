@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Drill;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DrillsController extends Controller
 {
@@ -29,7 +30,7 @@ class DrillsController extends Controller
     return view('drills.new');
   }
 
-  public function create(Request $request) // Requestクラスの変数$requestを引数にとる
+  public function create(Request $request) // Requestクラスのインスタンス$requestを引数にとる
   {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -56,7 +57,10 @@ class DrillsController extends Controller
 
         // fillを使って一気にいれるか
         // fillableを使っていないと変なデータが入り込んだ場合に勝手にDBが更新されてしまうので注意
-        $drill->fill($request->all())->save();
+        // $drill->fill($request->all())->save()
+
+        // user_idも含めた場合
+        Auth::user()->drills()->save($drill->fill($request->all()));
 
         // リダイレクトする
         // その時にsessionフラッシュにメッセージを入れる
@@ -69,7 +73,8 @@ class DrillsController extends Controller
     if(!ctype_digit($id)){ // $idが数字かチェックする
       return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
     }
-    $drill = Drill::find($id);
+    // $drill = Drill::find($id);
+    $drill = Auth::user()->drills()->find($id);
     return view('drills.edit', ['drill' => $drill]); // viewに変数drillを渡す
   }
 
@@ -78,7 +83,8 @@ class DrillsController extends Controller
     if(!ctype_digit($id)){
       return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
     } 
-    $drill = Drill::find($id);
+    // $drill = Drill::find($id);
+    $drill = Auth::user()->drills()->find($id);
     $drill->fill($request->all())->save();
 
     return redirect('/drills')->with('flash_message', __('Registered'));
@@ -96,9 +102,21 @@ class DrillsController extends Controller
     // $drill->delete();
 
     // こう書いた方がスマート
-    Drill::find($id)->delete();
+    // Drill::find($id)->delete();
+    Auth::user()->drills()->find($id)->delete();
 
     return redirect('/drills')->with('flash_message', __('Deleted.'));
+  }
+
+  public function mypage() {
+
+    // Authファサードからuserモデルが取得できるため、そこからリレーションを張っているdrillsモデルを操作
+    $drills = Auth::user()->drills()->get();
+
+    // viewに変数を渡す際にcompact関数かwith関数を使用する
+    return view('drills.mypage', compact('drills'));
+    // withの場合
+    // return view('drills.mypage')->with('drills', $drills);
   }
 
 }

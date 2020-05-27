@@ -1908,6 +1908,7 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _master_keymap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../master/keymap */ "./resources/js/master/keymap.js");
 //
 //
 //
@@ -1924,9 +1925,190 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mounted: function mounted() {
-    console.log('Component mounted.');
+  props: ["title", "drill", "categoryName"],
+  data: function data() {
+    return {
+      countDownNum: 3,
+      // カウントダウン用
+      timerNum: 30,
+      // タイマー
+      missNum: 0,
+      // ミス数
+      wpm: 0,
+      // WPM
+      isStarted: false,
+      isEnd: false,
+      isCountDown: false,
+      currentWordNum: 0,
+      // 現在回答中の文字数目
+      currentProblemNum: 0 // 現在の問題番号
+
+    };
+  },
+  computed: {
+    // 問題テキスト（配列型式)
+    problemWords: function problemWords() {
+      // 問題がからっぽの場合
+      // if (!Array.from(this.drill["problem" + this.currentProblemNum]).length) {
+      //   return null;
+      // }
+      // Arrayオブジェクトのfromメンバーにより、ドリルが配列に変換
+      return Array.from(this.drill["problem" + this.currentProblemNum]);
+    },
+    // 問題の解答キーコード配列
+    problemKeyCodes: function problemKeyCodes() {
+      // 問題がからっぽの場合
+      if (!Array.from(this.drill["problem" + this.currentProblemNum]).length) {
+        return null;
+      }
+
+      console.log("文字列の長さ：" + Array.from(this.drill["problem" + this.currentProblemNum]).length); // テキストから問題のキーコード配列を生成
+
+      var problemKeyCodes = [];
+      console.log("問題の配列:" + Array.from(this.drill["problem" + this.currentProblemNum])); // 配列型式にした問題テキストをforEachで配列ごとに処理
+
+      Array.from(this.drill["problem" + this.currentProblemNum]).forEach(function (text) {
+        // keyCodeMapの配列にそれぞれ処理する
+        // $.each(配列・オブジェクト, function(index, value) {
+        //  //繰り返し処理を記述する
+        // })
+        $.each(_master_keymap__WEBPACK_IMPORTED_MODULE_0__["default"], function (keyText, keyCode) {
+          if (text === keyText) {
+            problemKeyCodes.push(keyCode);
+          }
+        });
+      });
+      console.log("problemKeyCodes:" + problemKeyCodes);
+      return problemKeyCodes;
+    },
+    // 問題の文字数
+    totalWordNum: function totalWordNum() {
+      return this.problemKeyCodes.length;
+    },
+    // タイピングスコア
+    typingScore: function typingScore() {
+      // wpmは30sなので２倍している
+      return this.wpm * 2 * (1 - this.missNum / (this.wpm * 2));
+    }
+  },
+  methods: {
+    doDrill: function doDrill() {
+      this.isStarted = true;
+      this.countDown();
+    },
+    countDown: function countDown() {
+      var _this = this;
+
+      // 効果音読み込み
+      var countSound = new Audio("../sounds/Countdown01-5.mp3");
+      var startSound = new Audio("../sounds/Countdown01-6.mp3");
+      this.isCountDown = true;
+      this.soundPlay(countSound);
+      var timer = window.setInterval(function () {
+        _this.countDownNum -= 1;
+
+        if (_this.countDownNum <= 0) {
+          _this.isCountDown = false; // スタート音再生
+
+          _this.soundPlay(startSound); // timerをクリアーしてcountTimerとshowFirstProblemを実行
+
+
+          window.clearInterval(timer);
+
+          _this.countTimer();
+
+          _this.showFirstProblem();
+
+          return;
+        } // 先頭から再生するために0を代入
+
+
+        countSound.currentTime = 0; // 再生
+
+        countSound.play();
+      }, 1000);
+    },
+    showFirstProblem: function showFirstProblem() {
+      var _this2 = this;
+
+      // 効果音読み込み
+      var okSound = new Audio("../sounds/punch-middle2.mp3");
+      var ngSound = new Audio("../sounds/sword-clash4.mp3");
+      var nextSound = new Audio("../sounds/punch-high2.mp3"); // 入力イベント時に入力キーと解答キーをチェック
+
+      $(window).on("keypress", function (e) {
+        // e.whichで押されたキーコードを取得
+        console.log(e.which);
+
+        if (e.which === _this2.problemKeyCodes[_this2.currentWordNum]) {
+          console.log("正解！！");
+
+          _this2.soundPlay(okSound);
+
+          ++_this2.currentWordNum;
+          ++_this2.wpm;
+          console.log("現在解答の文字数目：" + _this2.currentWordNum); // 全文字の正解が終わったら、次の問題へ
+
+          if (_this2.totalWordNum === _this2.currentWordNum) {
+            console.log("次の問題へ！");
+            ++_this2.currentProblemNum;
+            _this2.currentWordNum = 0;
+
+            _this2.soundPlay(nextSound); // if (this.currentProblemNum == 10) {
+            //   console.log("おしまい");
+            //   this.isEnd = true;
+            // }
+
+          }
+        } else {
+          console.log("不正解です");
+
+          _this2.soundPlay(ngSound);
+
+          ++_this2.missNum;
+          console.log("現在解答の文字数目：" + _this2.currentWordNum);
+        }
+      });
+    },
+    soundPlay: function soundPlay(sound) {
+      // 最初から再生
+      sound.currentTime = 0;
+      sound.play();
+    },
+    countTimer: function countTimer() {
+      var _this3 = this;
+
+      var endSound = new Audio("../sounds/gong-played2.mp3");
+      var timer = window.setInterval(function () {
+        _this3.timerNum -= 1;
+
+        if (_this3.timerNum <= 0 || _this3.currentProblemNum == 10) {
+          _this3.isEnd = true;
+          console.log("おしまい");
+          window.clearInterval(timer);
+          endSound.play();
+        }
+      }, 1000);
+    }
   }
 });
 
@@ -37475,32 +37657,70 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "container" }, [
-      _c("div", { staticClass: "row justify-content-center" }, [
-        _c("div", { staticClass: "col-md-8" }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header" }, [
-              _vm._v("Example Component")
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _vm._v(
-                "\n                    I'm an example component.\n                "
-              )
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "row justify-content-center" }, [
+      _c("div", { staticClass: "col-sm-8" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("\n          " + _vm._s(_vm.title) + "\n          "),
+            _c("span", { staticClass: "badge badge-success" }, [
+              _vm._v(_vm._s(_vm.categoryName))
             ])
-          ])
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            { staticClass: "card-body text-center drill-body" },
+            [
+              !_vm.isStarted
+                ? _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      on: { click: _vm.doDrill }
+                    },
+                    [_vm._v("START")]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.isCountDown
+                ? _c("p", { staticStyle: { "font-size": "100px" } }, [
+                    _vm._v(_vm._s(_vm.countDownNum))
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.isStarted && !_vm.isCountDown && !_vm.isEnd
+                ? [
+                    _c("p", [_vm._v(_vm._s(_vm.timerNum))]),
+                    _vm._v(" "),
+                    _vm._l(_vm.problemWords, function(word, index) {
+                      return _c(
+                        "span",
+                        {
+                          class: { "text-primary": index < _vm.currentWordNum }
+                        },
+                        [_vm._v(_vm._s(word))]
+                      )
+                    })
+                  ]
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.isEnd
+                ? [
+                    _c("p", [_vm._v("あなたのスコア")]),
+                    _vm._v(" "),
+                    _c("p", [_vm._v(_vm._s(_vm.typingScore))])
+                  ]
+                : _vm._e()
+            ],
+            2
+          )
         ])
       ])
     ])
-  }
-]
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -49821,6 +50041,108 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/master/keymap.js":
+/*!***************************************!*\
+  !*** ./resources/js/master/keymap.js ***!
+  \***************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  "0": 48,
+  "1": 49,
+  "2": 50,
+  "3": 51,
+  "4": 52,
+  "5": 53,
+  "6": 54,
+  "7": 55,
+  "8": 56,
+  "9": 57,
+  "A": 65,
+  "B": 66,
+  "C": 67,
+  "D": 68,
+  "E": 69,
+  "F": 70,
+  "G": 71,
+  "H": 72,
+  "I": 73,
+  "J": 74,
+  "K": 75,
+  "L": 76,
+  "M": 77,
+  "N": 78,
+  "O": 79,
+  "P": 80,
+  "Q": 81,
+  "R": 82,
+  "S": 83,
+  "T": 84,
+  "U": 85,
+  "V": 86,
+  "W": 87,
+  "X": 88,
+  "Y": 89,
+  "Z": 90,
+  "a": 97,
+  "b": 98,
+  "c": 99,
+  "d": 100,
+  "e": 101,
+  "f": 102,
+  "g": 103,
+  "h": 104,
+  "i": 105,
+  "j": 106,
+  "k": 107,
+  "l": 108,
+  "m": 109,
+  "n": 110,
+  "o": 111,
+  "p": 112,
+  "q": 113,
+  "r": 114,
+  "s": 115,
+  "t": 116,
+  "u": 117,
+  "v": 118,
+  "w": 119,
+  "x": 120,
+  "y": 121,
+  "z": 122,
+  "@": 64,
+  "?": 63,
+  ".": 46,
+  ",": 44,
+  "$": 36,
+  "&": 38,
+  "#": 35,
+  "!": 33,
+  "'": 39,
+  "\"": 34,
+  ":": 58,
+  ";": 59,
+  "<": 60,
+  ">": 62,
+  "/": 47,
+  "{": 123,
+  "}": 125,
+  "[": 91,
+  "]": 93,
+  "=": 61,
+  "-": 45,
+  "(": 40,
+  ")": 41,
+  "\\": 92,
+  "+": 43,
+  "_": 95
+});
+
+/***/ }),
+
 /***/ "./resources/sass/app.scss":
 /*!*********************************!*\
   !*** ./resources/sass/app.scss ***!
@@ -49839,8 +50161,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\xampp\htdocs\laravel_sample\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\laravel_sample\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /Applications/MAMP/htdocs/laravel_sample/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /Applications/MAMP/htdocs/laravel_sample/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

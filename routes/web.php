@@ -17,15 +17,18 @@ Route::get('/', function () {
     return view('child');
 });
 
-Route::get('/drills/new', 'DrillsController@new')->name('drills.new');
-Route::post('/drills', 'DrillsController@create')->name('drills.create');
-Route::get('/drills', 'DrillsController@index')->name('drills');
-Route::get('/drills/{id}/edit', 'DrillsController@edit')->name('drills.edit');
-Route::post('/drills/{id}', 'DrillsController@update')->name('drills.update');
-Route::post('/drills/{id}/delete', 'DrillsController@destroy')->name('drills.delete');
-Route::get('/drills/{id}', 'DrillsController@show')->name('drills.show');
+Route::group(['middleware' => 'auth'], function() {
+    Route::get('/drills/new', 'DrillsController@new')->name('drills.new');
+    Route::post('/drills', 'DrillsController@create')->name('drills.create');
+    Route::get('/drills', 'DrillsController@index')->name('drills');
+    Route::get('/drills/{id}/edit', 'DrillsController@edit')->name('drills.edit');
+    Route::post('/drills/{id}', 'DrillsController@update')->name('drills.update');
+    Route::post('/drills/{id}/delete', 'DrillsController@destroy')->name('drills.delete');
+    Route::get('/drills/{id}', 'DrillsController@show')->name('drills.show');
+});
+
+Route::get('/mypage', 'DrillsController@mypage')->name('drills.mypage')->middleware('check');
 
 Auth::routes();
-
 
 Route::get('/home', 'HomeController@index')->name('home');
