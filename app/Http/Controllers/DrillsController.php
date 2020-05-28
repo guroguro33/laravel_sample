@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Drill;
+use App\Problem;
+use App\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,14 +29,15 @@ class DrillsController extends Controller
 
   public function new()
   {
-    return view('drills.new');
+    $categories = Category::all();
+    return view('drills.new', ['categories' => $categories]);
   }
 
   public function create(Request $request) // Requestクラスのインスタンス$requestを引数にとる
   {
         $request->validate([
             'title' => 'required|string|max:255',
-            'category_name' => 'required|string|max:255',
+            'category_id' => 'required|integer',
             'problem0' => 'required|string|max:255',
             'problem1' => 'string|nullable|max:255',
             'problem2' => 'string|nullable|max:255',
@@ -49,6 +52,8 @@ class DrillsController extends Controller
 
         // モデルを使って、DBに登録する値をセット
         $drill = new Drill;
+        $problem = new Problem;
+        $category = new Category;
 
         // 1つ1つ入れるか
         // $drill->title = $request->title;
@@ -61,6 +66,28 @@ class DrillsController extends Controller
 
         // user_idも含めた場合
         Auth::user()->drills()->save($drill->fill($request->all()));
+
+        // // categoryテーブルの処理
+        // $category->category_name = $request->category_name;
+        // $category->save();
+
+        // // drillsテーブルにカテゴリーIDを追加
+        // $drill->category_id = $category->id;
+        // $drill->save();
+
+        // problemsテーブルの処理
+        $problems = [];
+        $i = 0;
+        $problem_name = 'problem'.$i; 
+
+        while(!empty($request->$problem_name)){
+          $problems[] = ['description' => $request->$problem_name];
+          $i++;
+          $problem_name = 'problem'.$i;
+        }
+
+        // createManyで複数のproblemに登録
+        $drill->problems()->createMany($problems);
 
         // リダイレクトする
         // その時にsessionフラッシュにメッセージを入れる
@@ -75,7 +102,17 @@ class DrillsController extends Controller
     }
     // $drill = Drill::find($id);
     $drill = Auth::user()->drills()->find($id);
-    return view('drills.edit', ['drill' => $drill]); // viewに変数drillを渡す
+
+    $problems = Problem::where('drill_id', 6)->get();
+
+    // $problems = $drill->problems()->get();
+
+    var_dump($drill->id);
+    // var_dump($problems);
+
+    $categories = Category::all();
+
+    return view('drills.edit', ['drill' => $drill, 'categories' => $categories, 'problems' => $problems]); // viewに変数drillを渡す
   }
 
   public function update(Request $request, $id){ // 2つの引数をとる

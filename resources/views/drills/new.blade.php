@@ -29,9 +29,13 @@
               <label for="category_name" class="col-md-4 col-form-label text-md-right">{{ __('Category') }}</label>
 
               <div class="col-md-6">
-                <input id="category_name" type="text" class="form-control @error('category_name') is-valid @enderror" name="category_name" value="{{ old('category_name')}}" autocomplete="category_name" autofocus>
+                <select name="category_id" id="category_name" class="form-control @error('category_name') is-valid @enderror" autofocus>
+                  @foreach($categories as $category)
+                    <option value="{{ $category->id }}" @if(old('category_id') == $category->id) selected @endif>{{ $category->category_name }}</option>
+                  @endforeach
+                </select>
 
-                @error('category_name')
+                @error('category_id')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
                 </span>

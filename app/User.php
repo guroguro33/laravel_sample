@@ -42,4 +42,14 @@ class User extends Authenticatable
     public function drills() {
         return $this->hasMany('App\Drill');
     }
+
+    // drillを経由して１つのカテゴリーにアクセス(第３引数はDrillテーブルの外部キー)
+    public function drillCategory() {
+        return $this->hasOneThrough('App\Category', 'App\Drill', 'category_id');
+    }
+
+    // drillを経由して多数のproblemにアクセス(第３引数はDrillテーブルの外部キー)
+    public function drillProblems() {
+        return $this->hasManyThrough('App\Problem', 'App\Drill', 'id');
+    }
 }

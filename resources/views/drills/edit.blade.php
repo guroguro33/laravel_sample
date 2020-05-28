@@ -30,9 +30,13 @@
               <label for="category_name" class="col-md-4 col-form-label text-md-right">{{ __('Category') }}</label>
 
               <div class="col-md-6">
-                <input id="category_name" type="text" class="form-control @error('category_name') is-valid @enderror" name="category_name" value="{{ old('category_name', $drill->category_name)}}" autocomplete="category_name" autofocus>
+                <select name="category_id" id="category_name" class="form-control @error('category_name') is-valid @enderror" autofocus>
+                  @foreach($categories as $category)
+                    <option value="{{ $category->id }}" @if(old('category_id', $drill->category_id) == $category->id) selected @endif>{{ $category->category_name }}</option>
+                  @endforeach
+                </select>
 
-                @error('category_name')
+                @error('category_id')
                 <span class="invalid-feedback" role="alert">
                   <strong>{{ $message }}</strong>
                 </span>
@@ -46,8 +50,8 @@
                 <label for="problem{{ $i - 1 }}" class="col-md-4 col-form-label text-md-right">{{ __('Problem').$i }}</label>
 
                 <div class="col-md-6">
-                  <input id="problem{{$i - 1}}" type="text" class="form-control @error('problem'.($i - 1)) is-valid @enderror" name="problem{{ $i - 1 }}" value="{{ old('problem'.($i - 1), $drill['problem'.($i - 1)]) }}" autocomplete="problem{{ $i - 1 }}" autofocus >
-
+                  <input id="problem{{$i - 1}}" type="text" class="form-control @error('problem'.($i - 1)) is-valid @enderror" name="problem{{ $i - 1 }}" value="{{ old('problem'.($i - 1), ) }}" autocomplete="" autofocus >
+                  
                   @error('problem'.($i - 1))
                   <span class="invalid-feedback" role='alert'>
                     <strong>{{ $message }}</strong>
@@ -56,6 +60,11 @@
                 </div>
               </div>
             @endfor
+
+            @foreach($problems as $problem){
+              <p>{{ $problem->description }}</p>
+            }
+            @endforeach
 
             <div class="form-group row mb-0">
               <div class="col-md-6 offset-md-4">
