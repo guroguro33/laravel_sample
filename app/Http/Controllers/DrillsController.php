@@ -23,8 +23,10 @@ class DrillsController extends Controller
       return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
     }
     $drill = Drill::find($id);
-    return view('drills.show', ['drill' => $drill]);
-
+    $problems = $drill->problems; 
+    $category = $drill->category->category_name;
+    // var_dump($category);
+    return view('drills.show', ['drill' => $drill, 'problems' => $problems, 'category' => $category]);
   }
 
   public function new()
@@ -167,6 +169,10 @@ class DrillsController extends Controller
 
     // こう書いた方がスマート
     // Drill::find($id)->delete();
+
+    // 外部キー制約があるため、ドリルに紐づく問題を全て消す
+    Auth::user()->drills()->find($id)->problems()->delete();
+    //  該当するドリルを消す
     Auth::user()->drills()->find($id)->delete();
 
     return redirect('/drills')->with('flash_message', __('Deleted.'));
