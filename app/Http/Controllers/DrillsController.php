@@ -103,16 +103,19 @@ class DrillsController extends Controller
     // $drill = Drill::find($id);
     $drill = Auth::user()->drills()->find($id);
 
-    $problems = Problem::where('drill_id', 6)->get();
+    // drill_idが同じものをコレクションで抽出
+    $problems = Problem::where('drill_id', $drill->id)->get();
 
-    // $problems = $drill->problems()->get();
+    // 問題文を配列に入れる
+    $problem_list = [];
+    foreach($problems as $problem){
+      $problem_list[] = $problem->description;
+    }
 
-    var_dump($drill->id);
-    // var_dump($problems);
-
+    // カテゴリリストを取得
     $categories = Category::all();
 
-    return view('drills.edit', ['drill' => $drill, 'categories' => $categories, 'problems' => $problems]); // viewに変数drillを渡す
+    return view('drills.edit', ['drill' => $drill, 'categories' => $categories, 'problem_list' => $problem_list]); // viewに変数drillを渡す
   }
 
   public function update(Request $request, $id){ // 2つの引数をとる
@@ -120,12 +123,36 @@ class DrillsController extends Controller
     if(!ctype_digit($id)){
       return redirect('/drills/new')->with('flash_message', __('Invalid operation was performed.'));
     } 
-    // $drill = Drill::find($id);
+    // drillsテーブルの処理
     $drill = Auth::user()->drills()->find($id);
     $drill->fill($request->all())->save();
 
-    return redirect('/drills')->with('flash_message', __('Registered'));
+    // problemsテーブルの処理
+    // drill_idが一致する問題を抽出
+    $problems_old = Problem::where('drill_id', $drill->id)->get();
 
+    $problems = [];
+    $i = 0;
+    $problem_name = 'problem'.$i; 
+
+    // 問題内容を更新
+    while(!empty($request->$problem_name)){
+      $problems = ['description' => $request->$problem_name];
+      if(!empty($problems_old[$i])){
+        $problems_old[$i]->update($problems);
+      }else{
+        // 問題がない項目に入力があった場合は新規作成
+        $drill->problems()->create($problems);
+      }
+      $i++;
+      $problem_name = 'problem'.$i;
+    }
+
+    // 以下2つは同じ結果
+    // var_dump($drill->problems);
+    // var_dump($problems_old);
+    
+    return redirect('/drills')->with('flash_message', __('Registered'));
   }
 
   public function destroy($id){
