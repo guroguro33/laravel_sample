@@ -31,4 +31,5 @@ Route::get('/mypage', 'DrillsController@mypage')->name('drills.mypage')->middlew
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'DrillsController@index')->name('drills.home');
+Route::get('/', 'DrillsController@index')->name('drills.home');

@@ -34,7 +34,7 @@
 <script>
 import keyCodeMap from "../master/keymap";
 export default {
-  props: ["title", "drill", "categoryName"],
+  props: ["title", "drill", "categoryName", "problems"],
   data: function() {
     return {
       countDownNum: 3, // カウントダウン用
@@ -56,28 +56,30 @@ export default {
       //   return null;
       // }
       // Arrayオブジェクトのfromメンバーにより、ドリルが配列に変換
-      return Array.from(this.drill["problem" + this.currentProblemNum]);
+      return Array.from(this.problems[this.currentProblemNum].description);
     },
     // 問題の解答キーコード配列
     problemKeyCodes: function() {
       // 問題がからっぽの場合
-      if (!Array.from(this.drill["problem" + this.currentProblemNum]).length) {
+      if (
+        !Array.from(this.problems[this.currentProblemNum].description).length
+      ) {
         return null;
       }
       console.log(
         "文字列の長さ：" +
-          Array.from(this.drill["problem" + this.currentProblemNum]).length
+          Array.from(this.problems[this.currentProblemNum].description).length
       );
 
       // テキストから問題のキーコード配列を生成
       let problemKeyCodes = [];
       console.log(
         "問題の配列:" +
-          Array.from(this.drill["problem" + this.currentProblemNum])
+          Array.from(this.problems[this.currentProblemNum].description)
       );
 
       // 配列型式にした問題テキストをforEachで配列ごとに処理
-      Array.from(this.drill["problem" + this.currentProblemNum]).forEach(
+      Array.from(this.problems[this.currentProblemNum].description).forEach(
         text => {
           // keyCodeMapの配列にそれぞれ処理する
           // $.each(配列・オブジェクト, function(index, value) {

@@ -24,8 +24,14 @@ class DrillsController extends Controller
     }
     $drill = Drill::find($id);
     $problems = $drill->problems; 
+
+    // $problem_list = [];
+    // foreach($problems as $problem){
+    //   $problem_list[]  = $problem->description;
+    // }
+
     $category = $drill->category->category_name;
-    // var_dump($category);
+    // var_dump($problems[0]->description);
     return view('drills.show', ['drill' => $drill, 'problems' => $problems, 'category' => $category]);
   }
 

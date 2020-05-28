@@ -1944,7 +1944,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["title", "drill", "categoryName"],
+  props: ["title", "drill", "categoryName", "problems"],
   data: function data() {
     return {
       countDownNum: 3,
@@ -1972,21 +1972,21 @@ __webpack_require__.r(__webpack_exports__);
       //   return null;
       // }
       // Arrayオブジェクトのfromメンバーにより、ドリルが配列に変換
-      return Array.from(this.drill["problem" + this.currentProblemNum]);
+      return Array.from(this.problems[this.currentProblemNum].description);
     },
     // 問題の解答キーコード配列
     problemKeyCodes: function problemKeyCodes() {
       // 問題がからっぽの場合
-      if (!Array.from(this.drill["problem" + this.currentProblemNum]).length) {
+      if (!Array.from(this.problems[this.currentProblemNum].description).length) {
         return null;
       }
 
-      console.log("文字列の長さ：" + Array.from(this.drill["problem" + this.currentProblemNum]).length); // テキストから問題のキーコード配列を生成
+      console.log("文字列の長さ：" + Array.from(this.problems[this.currentProblemNum].description).length); // テキストから問題のキーコード配列を生成
 
       var problemKeyCodes = [];
-      console.log("問題の配列:" + Array.from(this.drill["problem" + this.currentProblemNum])); // 配列型式にした問題テキストをforEachで配列ごとに処理
+      console.log("問題の配列:" + Array.from(this.problems[this.currentProblemNum].description)); // 配列型式にした問題テキストをforEachで配列ごとに処理
 
-      Array.from(this.drill["problem" + this.currentProblemNum]).forEach(function (text) {
+      Array.from(this.problems[this.currentProblemNum].description).forEach(function (text) {
         // keyCodeMapの配列にそれぞれ処理する
         // $.each(配列・オブジェクト, function(index, value) {
         //  //繰り返し処理を記述する
