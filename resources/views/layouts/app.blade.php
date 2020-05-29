@@ -79,6 +79,8 @@
           </div>
         @endif
 
+        <a href="{{ URL::previous() }}" class="btn ml-5 mt-2">&lt; 戻る</a>
+
         <main class="py-4">
           @yield('content')
         </main>
