@@ -12,7 +12,8 @@ class DrillsController extends Controller
 {
   public function index()
   {
-    $drills = Drill::all(); // Drillの全データ取得
+    // $drills = Drill::all(); // Drillの全データ取得
+    $drills = Drill::paginate(6);
     return view('drills.index', ['drills' => $drills]);
 
   }
@@ -187,7 +188,7 @@ class DrillsController extends Controller
   public function mypage() {
 
     // Authファサードからuserモデルが取得できるため、そこからリレーションを張っているdrillsモデルを操作
-    $drills = Auth::user()->drills()->get();
+    $drills = Auth::user()->drills()->paginate(6);
 
     // viewに変数を渡す際にcompact関数かwith関数を使用する
     return view('drills.mypage', compact('drills'));
