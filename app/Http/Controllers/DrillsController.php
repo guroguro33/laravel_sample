@@ -6,6 +6,7 @@ use App\Drill;
 use App\Problem;
 use App\Category;
 use Illuminate\Http\Request;
+use App\Http\Requests\DrillRequest;
 use Illuminate\Support\Facades\Auth;
 
 class DrillsController extends Controller
@@ -42,22 +43,24 @@ class DrillsController extends Controller
     return view('drills.new', ['categories' => $categories]);
   }
 
-  public function create(Request $request) // Requestクラスのインスタンス$requestを引数にとる
+  public function create(DrillRequest $request) // Requestクラスのインスタンス$requestを引数にとる
   {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'category_id' => 'required|integer',
-            'problem0' => 'required|string|max:255',
-            'problem1' => 'string|nullable|max:255',
-            'problem2' => 'string|nullable|max:255',
-            'problem3' => 'string|nullable|max:255',
-            'problem4' => 'string|nullable|max:255',
-            'problem5' => 'string|nullable|max:255',
-            'problem6' => 'string|nullable|max:255',
-            'problem7' => 'string|nullable|max:255',
-            'problem8' => 'string|nullable|max:255',
-            'problem9' => 'string|nullable|max:255',
-        ]);
+        // $request->validate([
+        //     'title' => 'required|string|max:255',
+        //     'category_id' => 'required|integer',
+        //     'problem0' => 'required|string|max:255',
+        //     'problem1' => 'string|nullable|max:255',
+        //     'problem2' => 'string|nullable|max:255',
+        //     'problem3' => 'string|nullable|max:255',
+        //     'problem4' => 'string|nullable|max:255',
+        //     'problem5' => 'string|nullable|max:255',
+        //     'problem6' => 'string|nullable|max:255',
+        //     'problem7' => 'string|nullable|max:255',
+        //     'problem8' => 'string|nullable|max:255',
+        //     'problem9' => 'string|nullable|max:255',
+        // ]);
+
+        $validated = $request->validated();
 
         // モデルを使って、DBに登録する値をセット
         $drill = new Drill;
